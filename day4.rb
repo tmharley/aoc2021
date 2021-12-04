@@ -1,17 +1,19 @@
 # frozen_string_literal: true
 
+BOARD_SIZE = 5
+
 class BingoBoard
   def initialize(raw_input)
     @grid = []
-    @found = Array.new(5) { [false] * 5 }
+    @found = Array.new(BOARD_SIZE) { [false] * BOARD_SIZE }
     raw_input.each_line do |line|
       @grid << line.chomp.split(/\s+/).reject { |s| s == '' }
     end
   end
 
   def mark(called_number)
-    (0...5).each do |x|
-      (0...5).each do |y|
+    (0...BOARD_SIZE).each do |x|
+      (0...BOARD_SIZE).each do |y|
         @found[x][y] = true if @grid[x][y] == called_number
       end
     end
@@ -21,16 +23,16 @@ class BingoBoard
     @found.each do |row|
       return true unless row.any?(false)
     end
-    (0...5).each do |y|
-      return true unless (0...5).map { |x| @found[x][y] }.any?(false)
+    (0...BOARD_SIZE).each do |y|
+      return true unless (0...BOARD_SIZE).map { |x| @found[x][y] }.any?(false)
     end
     false
   end
 
   def board_score
     total = 0
-    (0...5).each do |x|
-      (0...5).each do |y|
+    (0...BOARD_SIZE).each do |x|
+      (0...BOARD_SIZE).each do |y|
         total += @grid[x][y].to_i unless @found[x][y]
       end
     end
