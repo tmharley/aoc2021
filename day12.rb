@@ -26,18 +26,17 @@ def small_cave_visited_twice?(path)
 end
 
 # for use with part two only
-def can_visit?(path, cave)
+def can_visit?(path, cave, allow_two_visits: false)
   return false if cave == 'start'
   return true if big_cave?(cave)
   return true if path.none?(cave)
+  return false unless allow_two_visits
 
   !small_cave_visited_twice?(path)
 end
 
-def part_one(input)
+def parse_segments(input)
   segments = {}
-  potential_paths = []
-  complete_paths = []
   input.each_line do |line|
     segment_start, segment_end = line.chomp.split('-')
     if segments.key?(segment_start)
@@ -51,6 +50,13 @@ def part_one(input)
       segments[segment_end] = Array(segment_start)
     end
   end
+  segments
+end
+
+def part_one(input)
+  segments = parse_segments(input)
+  potential_paths = []
+  complete_paths = []
   segments['start'].each do |s|
     potential_paths << ['start', s]
   end
@@ -62,7 +68,7 @@ def part_one(input)
         next
       end
       next_steps = segments[path.last].dup
-      next_steps.reject! { |n| !big_cave?(n) && path.include?(n) }
+      next_steps.select! { |n| can_visit?(path, n, allow_two_visits: false) }
       new_potential_paths += next_steps.map { |n| path.dup << n }
     end
     potential_paths = new_potential_paths
@@ -71,22 +77,9 @@ def part_one(input)
 end
 
 def part_two(input)
-  segments = {}
+  segments = parse_segments(input)
   potential_paths = []
   complete_paths = []
-  input.each_line do |line|
-    segment_start, segment_end = line.chomp.split('-')
-    if segments.key?(segment_start)
-      segments[segment_start] << segment_end
-    else
-      segments[segment_start] = Array(segment_end)
-    end
-    if segments.key?(segment_end)
-      segments[segment_end] << segment_start
-    else
-      segments[segment_end] = Array(segment_start)
-    end
-  end
   segments['start'].each do |s|
     potential_paths << ['start', s]
   end
@@ -98,7 +91,7 @@ def part_two(input)
         next
       end
       next_steps = segments[path.last].dup
-      next_steps.select! { |n| can_visit?(path, n) }
+      next_steps.select! { |n| can_visit?(path, n, allow_two_visits: true) }
       new_potential_paths += next_steps.map { |n| path.dup << n }
     end
     potential_paths = new_potential_paths
