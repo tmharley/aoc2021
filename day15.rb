@@ -24,8 +24,6 @@ def parse_grid(input)
   Array.new(risk_levels.length) do |x|
     Array.new(risk_levels.length) do |y|
       {
-        x: x,
-        y: y,
         risk: risk_levels[x][y],
         cumulative_risk: nil
       }
